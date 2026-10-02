@@ -1,0 +1,37 @@
+export const RUM = {
+  html: ["HTML / CSS", "Теги, селекторы, flex, позиционирование"],
+  js: ["JavaScript", "Основы, массивы, async, замыкания"],
+  react: ["React и экосистема", "Hooks, TypeScript, Next.js, Zustand"],
+  git: ["Git и основы Web", "Git, HTTP, API, npm"],
+  pc: ["Компьютерная грамотность", "Устройства, программы, безопасность"],
+};
+export const T = {
+  uz: {
+    title: "Bilimingizni sinab ko'ring",
+    sub: "Kerakli bo'limlarni tanlang — bittasini, bir nechtasini yoki hammasini. Savollar har gal tasodifiy tanlanadi, har bir savolga 2 daqiqa beriladi.",
+    all: "Hammasini tanlash", clear: "Tozalash", info: (n) => `${n} ta savol · ${n * 2} daqiqa`,
+    empty: "Hali bo'lim tanlanmagan", start: "Testni boshlash", q: "Savol", prev: "Oldingi", next: "Keyingi",
+    finish: "Yakunlash", early: "Testni erta tugatish", done: "Test yakunlandi",
+    doneSub: (a, n) => `${a}/${n} ta savolga javob berdingiz. Natijangizni ko'rish uchun ma'lumotlaringizni kiriting — ular yuboriladi.`,
+    fn: "Ism", ln: "Familiya", fnp: "Masalan: Aziz", lnp: "Masalan: Karimov", lvl: "Har bir yo'nalish bo'yicha darajangiz",
+    levels: ["Boshlang'ich", "O'rta", "Yuqori"], sending: "Yuborilmoqda...", retry: "Qayta yuborish", send: "Yuborish va natijani ko'rish",
+    err: (m) => `Yuborib bo'lmadi: ${m}. Internetni tekshirib, qayta urinib ko'ring.`, sent: (n) => `✅ Natijangiz yuborildi, ${n}!`,
+    correct: (c, n) => `${c} / ${n} ta to'g'ri javob`, review: "Xatolaringiz ustida ishlash", yours: "Sizning javobingiz: ",
+    none: "javob berilmagan", right: "To'g'ri javob: ", perfect: "🎉 Xato yo'q — ajoyib natija!", again: "Yangi test boshlash",
+    tg: ["📝 Yangi test natijasi", "daraja", "Jami", "Sarflangan vaqt"],
+  },
+  ru: {
+    title: "Проверьте свои знания",
+    sub: "Выберите нужные разделы — один, несколько или все сразу. Вопросы каждый раз выбираются случайно, на каждый вопрос даётся 2 минуты.",
+    all: "Выбрать все", clear: "Сбросить", info: (n) => `${n} вопросов · ${n * 2} мин`,
+    empty: "Раздел ещё не выбран", start: "Начать тест", q: "Вопрос", prev: "Назад", next: "Далее",
+    finish: "Завершить", early: "Завершить тест досрочно", done: "Тест завершён",
+    doneSub: (a, n) => `Вы ответили на ${a} из ${n} вопросов. Введите данные, чтобы увидеть результат — они будут отправлены.`,
+    fn: "Имя", ln: "Фамилия", fnp: "Например: Азиз", lnp: "Например: Каримов", lvl: "Ваш уровень по каждому направлению",
+    levels: ["Начальный", "Средний", "Продвинутый"], sending: "Отправка...", retry: "Отправить снова", send: "Отправить и посмотреть результат",
+    err: (m) => `Не удалось отправить: ${m}. Проверьте интернет и попробуйте снова.`, sent: (n) => `✅ Ваш результат отправлен, ${n}!`,
+    correct: (c, n) => `${c} / ${n} правильных ответов`, review: "Работа над ошибками", yours: "Ваш ответ: ",
+    none: "ответ не дан", right: "Правильный ответ: ", perfect: "🎉 Ошибок нет — отличный результат!", again: "Начать новый тест",
+    tg: ["📝 Новый результат теста", "уровень", "Итого", "Затраченное время"],
+  },
+};
