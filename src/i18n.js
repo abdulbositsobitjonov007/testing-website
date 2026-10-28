@@ -1,9 +1,10 @@
 export const RUM = {
-  html: ["HTML / CSS", "Теги, селекторы, flex, позиционирование"],
-  js: ["JavaScript", "Основы, массивы, async, замыкания"],
+  html:  ["HTML / CSS", "Теги, селекторы, flex, позиционирование"],
+  js:    ["JavaScript", "Основы, массивы, async, замыкания"],
   react: ["React и экосистема", "Hooks, TypeScript, Next.js, Zustand"],
-  git: ["Git и основы Web", "Git, HTTP, API, npm"],
-  pc: ["Компьютерная грамотность", "Устройства, программы, безопасность"],
+  rn:    ["React Native", "Компоненты, навигация, Expo"],
+  git:   ["Git и основы Web", "Git, HTTP, API, npm"],
+  pc:    ["Компьютерная грамотность", "Устройства, программы, безопасность"],
 };
 export const T = {
   uz: {

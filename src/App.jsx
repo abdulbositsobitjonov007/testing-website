@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { SECTIONS } from "./data";
-import { draw, PICK } from "./pool";
+import { draw, PICK_MAP, DIFFICULTY_LEVELS } from "./pool";
 import { T, RUM } from "./i18n";
 
 const TOKEN = import.meta.env.VITE_TG_TOKEN;
@@ -15,10 +15,17 @@ const Primary = "bg-gradient-to-r from-indigo-500 to-cyan-400 text-slate-950 hov
 const Ghost = "border border-white/15 bg-white/5 hover:bg-white/10";
 const Input = "rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-base outline-none focus:border-cyan-300";
 
+const DIFF_CONFIG = {
+  beginner: { uz: "Boshlang'ich", ru: "Начальный",    icon: "🌱", desc: { uz: "Faqat asosiy mavzular", ru: "Только базовые темы" } },
+  mid:      { uz: "O'rta",        ru: "Средний",       icon: "📖", desc: { uz: "Yarim material",         ru: "Половина материала" } },
+  full:     { uz: "To'liq",       ru: "Полный",        icon: "🎓", desc: { uz: "Barcha mavzular",        ru: "Все темы" } },
+};
+
 export default function App() {
   const [lang, setLang] = useState("uz");
   const [screen, setScreen] = useState("home");
   const [picked, setPicked] = useState([]);
+  const [difficulty, setDifficulty] = useState("full");
   const [qs, setQs] = useState([]);
   const [ans, setAns] = useState({});
   const [cur, setCur] = useState(0);
@@ -28,14 +35,18 @@ export default function App() {
   const [sending, setSending] = useState(false);
   const [err, setErr] = useState("");
   const t = T[lang];
-  const sm = (s) => (lang === "ru" ? { ...s, title: RUM[s.id][0], desc: RUM[s.id][1] } : s);
+
+  // Map section to localized title/desc using RUM from i18n.js
+  const sm = (s) => lang === "ru" && RUM[s.id]
+    ? { ...s, title: RUM[s.id][0], desc: RUM[s.id][1] }
+    : s;
 
   const chosen = SECTIONS.filter((s) => picked.includes(s.id)).map(sm);
-  const total = chosen.length * PICK;
+  const total = chosen.reduce((acc, s) => acc + (PICK_MAP[s.id] || 20), 0);
   const toggle = (id) => setPicked((p) => (p.includes(id) ? p.filter((x) => x !== id) : [...p, id]));
 
   const start = () => {
-    const list = draw(SECTIONS.filter((s) => picked.includes(s.id)).map((s) => s.id));
+    const list = draw(SECTIONS.filter((s) => picked.includes(s.id)).map((s) => s.id), difficulty);
     setQs(list); setAns({}); setCur(0); setErr("");
     setEndAt(Date.now() + list.length * PER_Q * 1000);
     setLeft(list.length * PER_Q);
@@ -63,8 +74,9 @@ export default function App() {
 
   const send = async () => {
     setSending(true); setErr("");
+    const diffLabel = DIFF_CONFIG[difficulty]?.[lang] || difficulty;
     const lines = SECTIONS.filter((s) => stats[s.id]).map((s) => `• ${sm(s).title}: ${stats[s.id].c}/${stats[s.id].n} (${t.tg[1]}: ${t.levels[lv(s.id)]})`);
-    const text = [t.tg[0], `👤 ${form.name.trim()} ${form.surname.trim()}`, "", ...lines, "", `✅ ${t.tg[2]}: ${score}/${qs.length} (${pct}%)`, `⏱ ${t.tg[3]}: ${fmt(qs.length * PER_Q - left)}`].join("\n");
+    const text = [t.tg[0], `👤 ${form.name.trim()} ${form.surname.trim()}`, `📊 ${lang === "uz" ? "Daraja" : "Уровень"}: ${diffLabel}`, "", ...lines, "", `✅ ${t.tg[2]}: ${score}/${qs.length} (${pct}%)`, `⏱ ${t.tg[3]}: ${fmt(qs.length * PER_Q - left)}`].join("\n");
     try {
       const r = await fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage`, {
         method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ chat_id: CHAT, text }),
@@ -76,7 +88,7 @@ export default function App() {
     setSending(false);
   };
 
-  const reset = () => { setScreen("home"); setPicked([]); setForm({ name: "", surname: "", levels: {} }); };
+  const reset = () => { setScreen("home"); setPicked([]); setDifficulty("full"); setForm({ name: "", surname: "", levels: {} }); };
   const valid = form.name.trim().length > 1 && form.surname.trim().length > 1;
 
   return (
@@ -94,6 +106,34 @@ export default function App() {
               <h1 className="text-4xl font-extrabold tracking-tight sm:text-6xl">{t.title}</h1>
               <p className="mt-4 text-lg text-slate-300">{t.sub}</p>
             </header>
+
+            {/* Difficulty selector */}
+            <div className="mb-8">
+              <div className="mb-3 text-sm font-semibold text-slate-300">
+                {lang === "uz" ? "🎯 Yechish darajasi" : "🎯 Уровень сложности"}
+              </div>
+              <div className="grid gap-3 sm:grid-cols-3">
+                {Object.entries(DIFF_CONFIG).map(([key, cfg]) => {
+                  const on = difficulty === key;
+                  return (
+                    <button
+                      key={key}
+                      onClick={() => setDifficulty(key)}
+                      aria-pressed={on}
+                      className={`relative rounded-2xl border p-4 text-left transition ${on ? "border-cyan-300 bg-white/10" : "border-white/10 bg-white/4 hover:bg-white/8"}`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="text-xl">{cfg.icon}</span>
+                        <span className="font-bold">{cfg[lang]}</span>
+                      </div>
+                      <div className="mt-1 text-xs text-slate-400">{cfg.desc[lang]}</div>
+                      {on && <span className="absolute right-3 top-3 grid h-5 w-5 place-items-center rounded-full bg-cyan-300 text-slate-950 text-xs">✓</span>}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
             <div className="mb-6 flex gap-3">
               <Btn className={Ghost} onClick={() => setPicked(SECTIONS.map((s) => s.id))}>{t.all}</Btn>
               <Btn className={Ghost} onClick={() => setPicked([])}>{t.clear}</Btn>
@@ -101,6 +141,7 @@ export default function App() {
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {SECTIONS.map(sm).map((s) => {
                 const on = picked.includes(s.id);
+                const pick = PICK_MAP[s.id] || 20;
                 return (
                   <button key={s.id} onClick={() => toggle(s.id)} aria-pressed={on} className={`relative overflow-hidden rounded-3xl border p-6 text-left transition ${on ? "border-cyan-300 bg-white/10" : "border-white/10 bg-white/4 hover:bg-white/8"}`}>
                     <div className={`mb-4 grid h-14 w-14 place-items-center rounded-2xl bg-linear-to-br text-2xl ${s.grad}`}>
@@ -108,7 +149,7 @@ export default function App() {
                     </div>
                     <div className="text-xl font-bold">{s.title}</div>
                     <div className="mt-1 text-sm text-slate-400">{s.desc}</div>
-                    <div className="mt-4 text-sm font-semibold text-slate-200">{t.info(PICK)}</div>
+                    <div className="mt-4 text-sm font-semibold text-slate-200">{t.info(pick)}</div>
                     <span className={`absolute right-5 top-5 grid h-7 w-7 place-items-center rounded-full border text-sm ${on ? "border-cyan-300 bg-cyan-300 text-slate-950" : "border-white/20"}`}>{on && "✓"}</span>
                   </button>
                 );
